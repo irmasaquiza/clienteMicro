@@ -7,7 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.5" />
+    <PackageReference Include="Asp.Versioning.Mvc" Version="8.1.1" />
+    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.25" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.5" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microservicio.Clientes.DataManagemente\Microservicio.Clientes.DataManagemente.csproj" />
+    <ProjectReference Include="..\Microservicio.Cñoemtes.DataAccess\Microservicio.Clientes.DataAccess.csproj" />
+    <ProjectReference Include="..\Microservicios.Clientes.Business\Microservicio.Clientes.Business.csproj" />
   </ItemGroup>
 
 </Project>

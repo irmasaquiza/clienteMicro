@@ -1,23 +1,59 @@
+using Microservicio.Clientes.Api.Extensions;
+using Microservicio.Clientes.Api.Middleware;
+using Microservicio.Clientes.Api.Settings;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// 🔥 CONFIGURACIÓN
 
+// Controllers
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+
+// Swagger
+builder.Services.AddSwaggerDocumentation();
+
+// CORS
+builder.Services.AddCustomCors(builder.Configuration);
+
+// Versioning
+builder.Services.AddApiVersioningConfig();
+
+// JWT Settings
+builder.Services.Configure<JwtSettings>(
+    builder.Configuration.GetSection("JwtSettings"));
+
+// Authentication JWT
+builder.Services.AddJwtAuthentication(builder.Configuration);
+
+// Dependency Injection (DbContext, Services, Repositories)
+builder.Services.AddApplicationServices(builder.Configuration);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
 
+// 🔥 MIDDLEWARE PIPELINE (ORDEN IMPORTANTE 💣)
+
+// Manejo global de errores
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+// HTTPS
 app.UseHttpsRedirection();
 
+// CORS
+app.UseCors("CorsPolicy");
+
+// Authentication + Authorization
+app.UseAuthentication();
 app.UseAuthorization();
 
+// Swagger (solo en desarrollo)
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+// Controllers
 app.MapControllers();
 
 app.Run();
