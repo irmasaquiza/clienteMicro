@@ -25,7 +25,7 @@ namespace Microservicio.Clientes.DataAccess.Entities
         public string UsuarioCreacion { get; set; }
 
         public DateTime? FechaModificacion { get; set; }
-        public string UsuarioModificacion { get; set; }
+        public string? UsuarioModificacion { get; set; }
         // BORRADO LÓGICO
         public bool Eliminado { get; set; }
     }

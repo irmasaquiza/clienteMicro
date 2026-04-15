@@ -24,9 +24,9 @@ namespace Microservicio.Clientes.Api.Middleware
             {
                 await HandleBusinessException(context, ex);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                await HandleGenericException(context);
+                await HandleGenericException(context, ex);
             }
         }
 
@@ -53,14 +53,14 @@ namespace Microservicio.Clientes.Api.Middleware
         }
 
         // 🔥 MANEJO DE ERROR GENERAL
-        private static async Task HandleGenericException(HttpContext context)
+        private static async Task HandleGenericException(HttpContext context, Exception ex)
         {
             context.Response.ContentType = "application/json";
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            context.Response.StatusCode = 500;
 
             var response = new ApiErrorResponse
             {
-                Message = "Ocurrió un error interno en el servidor"
+                Message = ex.Message // 🔥 VER ERROR REAL
             };
 
             var json = JsonSerializer.Serialize(response);
