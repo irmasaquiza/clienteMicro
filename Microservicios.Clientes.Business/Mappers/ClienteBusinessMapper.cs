@@ -22,6 +22,7 @@ namespace Microservicio.Clientes.Business.Mappers
                 Correo = request.Correo,
                 Telefono = request.Telefono,
                 Estado = request.Estado
+
             };
         }
 

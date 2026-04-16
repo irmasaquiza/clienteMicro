@@ -32,7 +32,6 @@ namespace Microservicio.Clientes.Api.Extensions
 
             // 🔥 BUSINESS SERVICES
             services.AddScoped<IClienteService, ClienteService>();
-            services.AddScoped<IAuthService, AuthService>();
 
             return services;
         }

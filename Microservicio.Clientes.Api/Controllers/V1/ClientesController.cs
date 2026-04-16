@@ -3,6 +3,7 @@ using Microservicio.Clientes.Api.Models;
 using Microservicio.Clientes.Business.DTOs;
 using Microservicio.Clientes.Business.Interfaces;
 using Microservicio.Clientes.DataManagement.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Microservicio.Clientes.Api.Controllers.V1
@@ -10,6 +11,8 @@ namespace Microservicio.Clientes.Api.Controllers.V1
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/clientes")]
+    [Authorize] // 🔥 AQUÍ
+
     public class ClientesController : ControllerBase
     {
         private readonly IClienteService _clienteService;

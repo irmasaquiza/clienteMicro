@@ -72,9 +72,20 @@ namespace Microservicio.Clientes.Business.Services
         {
             // 🔥 VALIDACIÓN
             ClienteValidator.ValidarCrear(request);
+            var existe = await _clienteDataService.GetByCedulaAsync(request.Cedula);
 
+            if (existe != null)
+            {
+                throw new ValidationException(new List<string>
+        {
+            "Ya existe un cliente con ese número de identificación"
+        });
+            }
             // 🔥 MAPEAR DTO → DATA MODEL
             var model = ClienteBusinessMapper.ToDataModel(request);
+            model.UsuarioCreacion = "admin"; // 🔥 obligatorio
+            model.FechaCreacion = DateTime.Now;
+            model.Eliminado = false;
 
             // 🔥 GUARDAR
             var created = await _clienteDataService.CreateAsync(model);

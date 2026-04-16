@@ -14,6 +14,7 @@ namespace Microservicio.Clientes.Api.Middleware
             _next = next;
         }
 
+
         public async Task InvokeAsync(HttpContext context)
         {
             try
@@ -39,6 +40,7 @@ namespace Microservicio.Clientes.Api.Middleware
             var response = new ApiErrorResponse
             {
                 Message = ex.Message
+                //Message = ex.InnerException?.Message ?? ex.Message
             };
 
             // 🔥 SI ES VALIDATION → LISTA DE ERRORES
@@ -61,6 +63,7 @@ namespace Microservicio.Clientes.Api.Middleware
             var response = new ApiErrorResponse
             {
                 Message = ex.Message // 🔥 VER ERROR REAL
+                //Message = ex.InnerException?.Message ?? ex.Message
             };
 
             var json = JsonSerializer.Serialize(response);

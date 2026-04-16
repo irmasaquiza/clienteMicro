@@ -44,7 +44,13 @@ namespace Microservicio.Clientes.DataManagement.Mappers
                 Correo = model.Correo,
                 Telefono = model.Telefono,
                 Estado = model.Estado,
-                Eliminado = model.Eliminado
+                Eliminado = model.Eliminado,
+                UsuarioCreacion = model.UsuarioCreacion,
+                FechaCreacion = model.FechaCreacion,
+                UsuarioModificacion = model.UsuarioModificacion,
+                FechaModificacion = model.FechaModificacion,
+
+
             };
         }
 

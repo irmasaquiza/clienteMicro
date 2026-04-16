@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+
 using Microservicio.Clientes.Business.DTOs;
 using Microservicio.Clientes.Business.Interfaces;
 using Microservicio.Clientes.Business.Exceptions;
 using Microservicio.Clientes.DataManagement.Interfaces;
+
+using Microsoft.IdentityModel.Tokens;
 
 namespace Microservicio.Clientes.Business.Services
 {
@@ -12,9 +18,24 @@ namespace Microservicio.Clientes.Business.Services
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        public AuthService(IUnitOfWork unitOfWork)
+        // 🔥 CONFIG JWT (INYECTADA DESDE API)
+        private readonly string _secretKey;
+        private readonly string _issuer;
+        private readonly string _audience;
+        private readonly int _expiration;
+
+        public AuthService(
+            IUnitOfWork unitOfWork,
+            string secretKey,
+            string issuer,
+            string audience,
+            int expiration)
         {
             _unitOfWork = unitOfWork;
+            _secretKey = secretKey;
+            _issuer = issuer;
+            _audience = audience;
+            _expiration = expiration;
         }
 
         public async Task<LoginResponse> LoginAsync(LoginRequest request)
@@ -46,10 +67,33 @@ namespace Microservicio.Clientes.Business.Services
                 .Select(ur => ur.Rol.Nombre)
                 .ToList();
 
-            // 🔐 TOKEN FAKE (por ahora)
-            var token = "TOKEN_DE_PRUEBA_" + Guid.NewGuid();
+            // 🔐 GENERAR JWT REAL 💣
 
-            var expiration = DateTime.UtcNow.AddHours(1);
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            // 🔥 CLAIMS
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, usuario.Username),
+                new Claim(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString())
+            };
+
+            // 🔥 AGREGAR ROLES
+            foreach (var rol in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, rol));
+            }
+
+            var tokenDescriptor = new JwtSecurityToken(
+                issuer: _issuer,
+                audience: _audience,
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(_expiration),
+                signingCredentials: creds
+            );
+
+            var token = new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
 
             await _unitOfWork.SaveChangesAsync();
 
@@ -58,7 +102,7 @@ namespace Microservicio.Clientes.Business.Services
                 Token = token,
                 Username = usuario.Username,
                 Roles = roles,
-                Expiration = expiration
+                Expiration = tokenDescriptor.ValidTo
             };
         }
     }

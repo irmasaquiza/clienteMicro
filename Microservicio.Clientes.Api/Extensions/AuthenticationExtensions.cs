@@ -2,46 +2,39 @@
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microservicio.Clientes.Api.Settings;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
-namespace Microservicio.Clientes.Api.Extensions
+public static class AuthenticationExtensions
 {
-    public static class AuthenticationExtensions
+    public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration config)
     {
-        public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
-        {
-            var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>();
+        var jwtSettings = config.GetSection("JwtSettings").Get<JwtSettings>();
 
-            var key = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
+        var key = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
 
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                options.RequireHttpsMetadata = false; // 🔥 en producción → true
-
+                options.RequireHttpsMetadata = false;
                 options.SaveToken = true;
 
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
-                    ValidIssuer = jwtSettings.Issuer,
-
                     ValidateAudience = true,
-                    ValidAudience = jwtSettings.Audience,
-
                     ValidateLifetime = true,
-
                     ValidateIssuerSigningKey = true,
+
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
 
-                    ClockSkew = TimeSpan.Zero // 🔥 evita tiempo extra
+                    ClockSkew = TimeSpan.Zero
                 };
             });
 
-            return services;
-        }
+        return services;
     }
 }
